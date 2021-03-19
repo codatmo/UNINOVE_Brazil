@@ -6,5 +6,6 @@ Website at https://codatmo.github.io/UNINOVE_Sao_Paulo/.
 
 ## Team
 
+* Senior Researcher: [Breck Baldwin](https://github.com/breckbaldwin)
 * Lead Researcher: [Jose Storopoli](https://github.com/storopoli)
 * Assistant Researcher: [Andre Santos](https://github.com/andrelmfsantos)
