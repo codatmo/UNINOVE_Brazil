@@ -1,0 +1,60 @@
+---
+title: "Pre-Labeling's Initial Protocol"
+author:
+  - name: Jose Storopoli
+date: "Created on 19/03/2021 updated on `r format(Sys.time(), '%d/%m/%Y')`"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      fig.width = 6,
+                      fig.asp = 0.618,
+                      out.width = "70%",
+                      fig.align = "center",
+                      fig.retina = 3)
+```
+
+## Data
+
+Read all the CSV files from Liverpool's data. We have a total of 2,535,916 tweets! I have no idea what are `undefined_col`, `undefined_col2` and `undefined_col3`. The CSV file doesn't came with a header row and twitter's API docs are inconclusive. We need Liverpool's help to figure this out.
+
+```{r read-data}
+library(dplyr, warn.conflicts = FALSE)
+library(vroom)
+df <- vroom("~/Desktop/flu_pt_raw_tweets.csv",
+    col_names = c("index", "id", "created_at", "text", "user",
+                  "place", "user_place", "country", "coordinates",
+                  "undefined_col", "undefined_col2", "undefined_col3"),
+    col_types = "ffTcfccc?cii",
+    na = c("", "NA", "None"))
+df
+```
+
+Coordinates less than 5% complete data.
+
+```{r skim-data}
+library(skimr, warn.conflicts = FALSE)
+skim(df)
+```
+
+## Sample randomly 1k tweets
+
+We need to shuffle the data and extract 1k random tweets for the students to cross-label:
+
+```{r sample_data}
+library(readr, warn.conflicts = FALSE)
+set.seed(123)
+sample_df <- df %>%
+    sample_n(1e3)
+sample_df %>% write_csv2("sample_1k.csv")
+```
+
+## Session Information
+
+```{r SessionInfo}
+sessionInfo()
+```
