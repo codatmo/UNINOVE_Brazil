@@ -241,7 +241,7 @@ div.tocify {
 
 <h1 class="title toc-ignore">Pre-Labeling’s Initial Protocol</h1>
 <h4 class="author">Jose Storopoli</h4>
-<h4 class="date">Created on 19/03/2021 updated on 19/03/2021</h4>
+<h4 class="date">Created on 19/03/2021 updated on 22/03/2021</h4>
 
 </div>
 
@@ -251,40 +251,38 @@ div.tocify {
 <p>Read all the CSV files from Liverpool’s data. We have a total of 2,535,916 tweets! I have no idea what are <code>undefined_col</code>, <code>undefined_col2</code> and <code>undefined_col3</code>. The CSV file doesn’t came with a header row and twitter’s API docs are inconclusive. We need Liverpool’s help to figure this out.</p>
 <pre class="r"><code>library(dplyr, warn.conflicts = FALSE)
 library(vroom)
+
 df &lt;- vroom(&quot;~/Desktop/flu_pt_raw_tweets.csv&quot;,
     col_names = c(&quot;index&quot;, &quot;id&quot;, &quot;created_at&quot;, &quot;text&quot;, &quot;user&quot;,
                   &quot;place&quot;, &quot;user_place&quot;, &quot;country&quot;, &quot;coordinates&quot;,
                   &quot;undefined_col&quot;, &quot;undefined_col2&quot;, &quot;undefined_col3&quot;),
     col_types = &quot;ffTcfccc?cii&quot;,
-    na = c(&quot;&quot;, &quot;NA&quot;, &quot;None&quot;))
+    na = c(&quot;&quot;, &quot;NA&quot;, &quot;None&quot;),
+    locale = locale(date_format = &quot;y-m-d H:M:S&quot;))
 df</code></pre>
 <pre><code>## Warning: One or more parsing issues, see `problems()` for details</code></pre>
 <pre><code>## # A tibble: 2,535,916 x 12
-##    index id      created_at          text        user   place user_place country
-##    &lt;fct&gt; &lt;fct&gt;   &lt;dttm&gt;              &lt;chr&gt;       &lt;fct&gt;  &lt;chr&gt; &lt;chr&gt;      &lt;chr&gt;  
-##  1 1     127071… 2020-06-10 14:06:50 &quot;@Juridico… 48795… &lt;NA&gt;  &quot;Extremoz… &lt;NA&gt;   
-##  2 2     127071… 2020-06-10 14:06:52 &quot;Quero sab… 69699… Mace… &quot;Maceió, … BR     
-##  3 3     127071… 2020-06-10 14:06:56 &quot;agora com… 12696… &lt;NA&gt;  &quot;only day… &lt;NA&gt;   
-##  4 4     127071… 2020-06-10 14:07:00 &quot;@GabrielB… 12620… &lt;NA&gt;   &lt;NA&gt;      &lt;NA&gt;   
-##  5 5     127071… 2020-06-10 14:07:06 &quot;fuo dormi… 13474… &lt;NA&gt;   &lt;NA&gt;      &lt;NA&gt;   
-##  6 6     127071… 2020-06-10 14:07:06 &quot;@romeu_CR… 93589… &lt;NA&gt;   &lt;NA&gt;      &lt;NA&gt;   
-##  7 7     127071… 2020-06-10 14:07:14 &quot;Laura peg… 11546… &lt;NA&gt;  &quot;Porto Al… &lt;NA&gt;   
-##  8 8     127071… 2020-06-10 14:07:19 &quot;o lucas q… 16308… &lt;NA&gt;  &quot;021 &quot;     &lt;NA&gt;   
-##  9 9     127071… 2020-06-10 14:07:22 &quot;Pode ser … 11726… &lt;NA&gt;   &lt;NA&gt;      &lt;NA&gt;   
-## 10 10    127071… 2020-06-10 14:07:43 &quot;@arcticgo… 11685… &lt;NA&gt;  &quot;bangtan … &lt;NA&gt;   
-## # … with 2,535,906 more rows, and 4 more variables: coordinates &lt;chr&gt;,
-## #   undefined_col &lt;chr&gt;, undefined_col2 &lt;int&gt;, undefined_col3 &lt;int&gt;</code></pre>
+##    index id       created_at          text                                     user     place   user_place  country coordinates                  undefined_col undefined_col2 undefined_col3
+##    &lt;fct&gt; &lt;fct&gt;    &lt;dttm&gt;              &lt;chr&gt;                                    &lt;fct&gt;    &lt;chr&gt;   &lt;chr&gt;       &lt;chr&gt;   &lt;chr&gt;                        &lt;chr&gt;                  &lt;int&gt;          &lt;int&gt;
+##  1 1     1270719… 2020-06-10 14:06:50 &quot;@JuridicoPaulo @carolchiquie @adn_roy … 48795274 &lt;NA&gt;    &quot;Extremoz,… &lt;NA&gt;    &lt;NA&gt;                         &lt;NA&gt;                       1              0
+##  2 2     1270719… 2020-06-10 14:06:52 &quot;Quero saber se algum dia eu vou ficar … 69699567 Maceió… &quot;Maceió, B… BR      [[[-35.815834, -9.711808], … &lt;NA&gt;                       1              0
+##  3 3     1270719… 2020-06-10 14:06:56 &quot;agora com saudade dele hoje... do dram… 1269635… &lt;NA&gt;    &quot;only day6&quot; &lt;NA&gt;    &lt;NA&gt;                         &lt;NA&gt;                       1              0
+##  4 4     1270719… 2020-06-10 14:07:00 &quot;@GabrielBritoAi1 Gado com gripe, como … 1262029… &lt;NA&gt;     &lt;NA&gt;       &lt;NA&gt;    &lt;NA&gt;                         &lt;NA&gt;                       1              0
+##  5 5     1270719… 2020-06-10 14:07:06 &quot;fuo dormir as 8 e acordei agora a pouc… 1347448… &lt;NA&gt;     &lt;NA&gt;       &lt;NA&gt;    &lt;NA&gt;                         &lt;NA&gt;                       1              0
+##  6 6     1270719… 2020-06-10 14:07:06 &quot;@romeu_CRF @luixxcam @Juniorrr_10 @Mul… 9358914… &lt;NA&gt;     &lt;NA&gt;       &lt;NA&gt;    &lt;NA&gt;                         &lt;NA&gt;                       1              0
+##  7 7     1270719… 2020-06-10 14:07:14 &quot;Laura pegou gripe, é muito difícil ser… 1154676… &lt;NA&gt;    &quot;Porto Ale… &lt;NA&gt;    &lt;NA&gt;                         &lt;NA&gt;                       1              0
+##  8 8     1270719… 2020-06-10 14:07:19 &quot;o lucas quando me deu o casaco do flu … 1630817… &lt;NA&gt;    &quot;021 &quot;      &lt;NA&gt;    &lt;NA&gt;                         &lt;NA&gt;                       1              0
+##  9 9     1270719… 2020-06-10 14:07:22 &quot;Pode ser um homem ou mulher hétero, um… 1172640… &lt;NA&gt;     &lt;NA&gt;       &lt;NA&gt;    &lt;NA&gt;                         &lt;NA&gt;                       1              0
+## 10 10    1270719… 2020-06-10 14:07:43 &quot;@arcticgoo Não, eu canto e danço e fod… 1168531… &lt;NA&gt;    &quot;bangtan u… &lt;NA&gt;    &lt;NA&gt;                         &lt;NA&gt;                       1              0
+## # … with 2,535,906 more rows</code></pre>
 <p>Coordinates less than 5% complete data.</p>
 <pre class="r"><code>library(skimr, warn.conflicts = FALSE)
 skim(df)</code></pre>
-<pre><code>## Warning in sorted_count(x): Variable contains value(s) of &quot;&quot; that have been
-## converted to &quot;empty&quot;.
+<pre><code>## Warning in sorted_count(x): Variable contains value(s) of &quot;&quot; that have been converted to &quot;empty&quot;.
 
-## Warning in sorted_count(x): Variable contains value(s) of &quot;&quot; that have been
-## converted to &quot;empty&quot;.
+## Warning in sorted_count(x): Variable contains value(s) of &quot;&quot; that have been converted to &quot;empty&quot;.
 
-## Warning in sorted_count(x): Variable contains value(s) of &quot;&quot; that have been
-## converted to &quot;empty&quot;.</code></pre>
+## Warning in sorted_count(x): Variable contains value(s) of &quot;&quot; that have been converted to &quot;empty&quot;.</code></pre>
 <table>
 <caption>Data summary</caption>
 <tbody>
@@ -377,7 +375,7 @@ skim(df)</code></pre>
 <td align="right">206</td>
 <td align="right">0</td>
 <td align="right">320210</td>
-<td align="right">1061</td>
+<td align="right">1038</td>
 </tr>
 <tr class="even">
 <td align="left">country</td>
@@ -429,7 +427,7 @@ skim(df)</code></pre>
 <td align="right">0</td>
 <td align="right">1</td>
 <td align="left">FALSE</td>
-<td align="right">2520205</td>
+<td align="right">2520190</td>
 <td align="left">emp: 12431, <span class="citation">@If</span>: 47, <span class="citation">@nu</span>: 47, <span class="citation">@Wo</span>: 47</td>
 </tr>
 <tr class="even">
@@ -437,16 +435,16 @@ skim(df)</code></pre>
 <td align="right">0</td>
 <td align="right">1</td>
 <td align="left">FALSE</td>
-<td align="right">2512342</td>
-<td align="left">emp: 20891, 800: 36, Non: 31, voc: 22</td>
+<td align="right">2511932</td>
+<td align="left">emp: 20891, 114: 45, 800: 36, Non: 31</td>
 </tr>
 <tr class="odd">
 <td align="left">user</td>
 <td align="right">0</td>
 <td align="right">1</td>
 <td align="left">FALSE</td>
-<td align="right">1306767</td>
-<td align="left">emp: 36700, Non: 13178, 433: 4676, 122: 2609</td>
+<td align="right">1647623</td>
+<td align="left">emp: 36700, Non: 13178, 433: 4676, 800: 1931</td>
 </tr>
 </tbody>
 </table>
@@ -525,53 +523,40 @@ skim(df)</code></pre>
 <div id="sample-randomly-1k-tweets" class="section level2">
 <h2>Sample randomly 1k tweets</h2>
 <p>We need to shuffle the data and extract 1k random tweets for the students to cross-label:</p>
-<pre class="r"><code>library(readr, warn.conflicts = FALSE)</code></pre>
-<pre><code>## Registered S3 methods overwritten by &#39;readr&#39;:
-##   method           from 
-##   format.col_spec  vroom
-##   print.col_spec   vroom
-##   print.collector  vroom
-##   print.date_names vroom
-##   print.locale     vroom
-##   str.col_spec     vroom</code></pre>
-<pre class="r"><code>set.seed(123)
+<pre class="r"><code>library(readr, warn.conflicts = FALSE)
+library(tidyr, warn.conflicts = FALSE)
+set.seed(123)
 sample_df &lt;- df %&gt;%
+    drop_na(text) %&gt;%
     sample_n(1e3)
-sample_df %&gt;% write_csv2(&quot;sample_1k.csv&quot;)</code></pre>
+sample_df %&gt;% write_csv(&quot;sample_1k.csv&quot;)</code></pre>
 </div>
 <div id="session-information" class="section level2">
 <h2>Session Information</h2>
 <pre class="r"><code>sessionInfo()</code></pre>
 <pre><code>## R version 4.0.4 (2021-02-15)
-## Platform: x86_64-apple-darwin17.0 (64-bit)
-## Running under: macOS Big Sur 10.16
+## Platform: x86_64-pc-linux-gnu (64-bit)
+## Running under: Ubuntu 20.10
 ## 
 ## Matrix products: default
-## BLAS:   /Library/Frameworks/R.framework/Versions/4.0/Resources/lib/libRblas.dylib
-## LAPACK: /Library/Frameworks/R.framework/Versions/4.0/Resources/lib/libRlapack.dylib
+## BLAS/LAPACK: /home/storopoli/miniforge3/envs/r-reticulate/lib/libopenblasp-r0.3.12.so
 ## 
 ## locale:
-## [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+##  [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C               LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8     LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
+##  [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                  LC_ADDRESS=C               LC_TELEPHONE=C             LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
 ## 
 ## attached base packages:
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-## [1] readr_1.4.0 skimr_2.1.3 vroom_1.4.0 dplyr_1.0.5
+## [1] tidyr_1.1.3 readr_1.4.0 skimr_2.1.3 vroom_1.4.0 dplyr_1.0.5
 ## 
 ## loaded via a namespace (and not attached):
-##  [1] highr_0.8         bslib_0.2.4       compiler_4.0.4    pillar_1.5.1     
-##  [5] jquerylib_0.1.3   base64enc_0.1-3   tools_4.0.4       digest_0.6.27    
-##  [9] bit_4.0.4         jsonlite_1.7.2    evaluate_0.14     lifecycle_1.0.0  
-## [13] tibble_3.1.0      pkgconfig_2.0.3   rlang_0.4.10      rstudioapi_0.13  
-## [17] DBI_1.1.1         cli_2.3.1         yaml_2.2.1        parallel_4.0.4   
-## [21] xfun_0.22         repr_1.1.3        stringr_1.4.0     knitr_1.31       
-## [25] hms_1.0.0         generics_0.1.0    vctrs_0.3.6       sass_0.3.1       
-## [29] systemfonts_1.0.1 bit64_4.0.5       tidyselect_1.1.0  glue_1.4.2       
-## [33] R6_2.5.0          textshaping_0.3.3 fansi_0.4.2       rmarkdown_2.7    
-## [37] tidyr_1.1.3       purrr_0.3.4       magrittr_2.0.1    htmltools_0.5.1.1
-## [41] ellipsis_0.3.1    assertthat_0.2.1  ragg_1.1.2        utf8_1.2.1       
-## [45] stringi_1.5.3     crayon_1.4.1</code></pre>
+##  [1] highr_0.8         jquerylib_0.1.3   bslib_0.2.4       pillar_1.5.1      compiler_4.0.4    base64enc_0.1-3   tools_4.0.4       digest_0.6.27     bit_4.0.4         evaluate_0.14    
+## [11] jsonlite_1.7.2    lifecycle_1.0.0   tibble_3.1.0      debugme_1.1.0     pkgconfig_2.0.3   rlang_0.4.10      DBI_1.1.1         cli_2.3.1         rstudioapi_0.13   yaml_2.2.1       
+## [21] parallel_4.0.4    xfun_0.22         stringr_1.4.0     repr_1.1.3        withr_2.4.1       knitr_1.31        systemfonts_1.0.1 sass_0.3.1        hms_1.0.0         generics_0.1.0   
+## [31] vctrs_0.3.6       bit64_4.0.5       tidyselect_1.1.0  glue_1.4.2        R6_2.5.0          textshaping_0.3.3 fansi_0.4.2       rmarkdown_2.7     purrr_0.3.4       magrittr_2.0.1   
+## [41] ps_1.6.0          ellipsis_0.3.1    htmltools_0.5.1.1 assertthat_0.2.1  ragg_1.1.2        utf8_1.2.1        stringi_1.5.3     crayon_1.4.1</code></pre>
 </div>
 
 
