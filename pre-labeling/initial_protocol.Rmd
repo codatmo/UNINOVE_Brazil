@@ -25,12 +25,14 @@ Read all the CSV files from Liverpool's data. We have a total of 2,535,916 tweet
 ```{r read-data}
 library(dplyr, warn.conflicts = FALSE)
 library(vroom)
+
 df <- vroom("~/Desktop/flu_pt_raw_tweets.csv",
     col_names = c("index", "id", "created_at", "text", "user",
                   "place", "user_place", "country", "coordinates",
                   "undefined_col", "undefined_col2", "undefined_col3"),
     col_types = "ffTcfccc?cii",
-    na = c("", "NA", "None"))
+    na = c("", "NA", "None"),
+    locale = locale(date_format = "y-m-d H:M:S"))
 df
 ```
 
@@ -47,10 +49,12 @@ We need to shuffle the data and extract 1k random tweets for the students to cro
 
 ```{r sample_data}
 library(readr, warn.conflicts = FALSE)
+library(tidyr, warn.conflicts = FALSE)
 set.seed(123)
 sample_df <- df %>%
+    drop_na(text) %>%
     sample_n(1e3)
-sample_df %>% write_csv2("sample_1k.csv")
+sample_df %>% write_csv("sample_1k.csv")
 ```
 
 ## Session Information
