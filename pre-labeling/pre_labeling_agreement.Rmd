@@ -1,0 +1,144 @@
+---
+title: "Pre-Labeling's Initial Protocol"
+author:
+  - name: Jose Storopoli
+date: "Created on 06/04/2021 updated on `r format(Sys.time(), '%d/%m/%Y')`"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      fig.width = 6,
+                      fig.asp = 0.618,
+                      out.width = "70%",
+                      fig.align = "center",
+                      fig.retina = 3)
+```
+
+Remebering our labels:
+
+```{r labels}
+library(tibble)
+library(gt)
+tribble(
+                        ~code, ~label,
+                        "0", "Unrelated tweet",
+            "1", "User currently has symptoms",
+          "2", "User had symptoms in the past",
+    "3", "Someone else currently has symptoms",
+  "4", "Someone else had symptoms in the past",
+                      "5", "Conspiracy theory",
+  "6", "Someone else has died (death related)",
+       "99" ,"Indonesian, portugal, spanish etc"
+  ) %>% 
+  gt
+```
+
+
+We have 3 CSV's from 3 different labellers:
+
+* `sample_1k - elias.csv`
+* `sample_1k - paula.csv`
+* `sample_1k - vini.csv`
+
+Here is the data import and a sample of data without personal data (just `annotator`, `text`, and `label`)
+
+```{r read-data}
+library(fs)
+library(purrr)
+library(vroom)
+library(dplyr, warn.conflicts = FALSE)
+library(stringr)
+files <- dir_ls(here::here("pre-labeling"), regexp = "sample_1k(.*).csv")
+df <- files %>% map_dfr(~vroom(.,
+                         col_types = "ffTcfccc?ciif",
+                         na = c("", "NA", "None"),
+                         locale = locale(time_format = "y-m-d H:M:S")),
+                        .id = "annotator") %>% 
+  mutate(annotator = str_extract(annotator, "(\\w*)(?=(\\.csv))"))
+df %>%
+  select(annotator, text, label) %>% 
+  head %>%
+  gt
+```
+
+## Annotator Agreement
+
+Group by `index` since we have 1k different `index`:
+
+```{r index-length}
+length(unique(df$index))
+```
+
+Then create a agreement rate with `n_distinct` of label. This means that:
+
+* 1 / 1 = 100% agreement
+* 1 / 2 = 50% agreement
+* 1 / 3 = 33% agreement
+
+We also have multiple labels like `1,4` etc. Also removing empty labels `""` (clearly a mistake) and correcting `999` to `99` (1 occurence, a mistake).
+
+```{r annotator-agree}
+library(tidyr)
+df_dup <- df %>%
+  group_by(index) %>% 
+  mutate(label = str_squish(as.character(label))) %>% 
+  mutate(label = str_split(label, ",")) %>% 
+  unnest(c(label)) %>% 
+  ungroup() %>% 
+  mutate(label = str_squish(label)) %>% 
+  filter(label != "") %>% 
+  mutate(label = if_else(label == "999", "99", label)) %>% 
+  mutate(label = as.factor(label))
+agreed_df <- df_dup %>%
+  group_by(index) %>% 
+  summarise(agreement = 1 / n_distinct(label))
+```
+
+The total of agreement is `r (agreed_df %>% summarize(mean(agreement))) * 100`%.
+
+```{r overall-agree}
+agreed_df %>% 
+  summarize(mean(agreement)) %>% 
+  gt
+```
+
+## Confusion Matrix
+
+This is a matrix that will have "kind of empirical confusion matrix by counting all the
+pairs of labels (a, b) that show up together and displaying as a
+matrix.  For instance, if three annotators provide labels (1, 1, 2),
+then increment count for cells (1, 1), (1, 2), (1,2).  Displaying the
+final counts should give you a sense of which categories show up as
+well as which have high agreement (high diagonal counts) and which
+categories are confusible (high off-diagonal counts)." (Bob's suggestion)
+
+```{r confusion-matrix}
+col_range <- function(x) {
+  rng <- range(x, na.rm = TRUE)
+  (rng[2] - rng[1])
+}
+
+df_dup %>% 
+  select(index, annotator, label) %>% 
+  group_by(annotator, label) %>% 
+  count() %>% 
+  pivot_wider(id_cols = label, names_from = annotator, values_from = n) %>% 
+  mutate(
+    diff = max(elias:vini) - min(elias:vini),
+    diff_perc = diff / max(elias:vini)
+    ) %>% 
+  ungroup() %>% 
+  gt
+```
+
+## Environment
+
+```{r session-info}
+sessionInfo()
+```
+
+
