@@ -18,7 +18,7 @@ knitr::opts_chunk$set(echo = TRUE,
                       fig.retina = 3)
 ```
 
-Remebering our labels:
+Remembering our labels:
 
 ```{r labels}
 library(tibble)
@@ -33,7 +33,7 @@ tribble(
                       "5", "Conspiracy theory",
   "6", "Someone else has died (death related)",
        "99" ,"Indonesian, portugal, spanish etc"
-  ) %>% 
+  ) %>%
   gt
 ```
 
@@ -57,10 +57,10 @@ df <- files %>% map_dfr(~vroom(.,
                          col_types = "ffTcfccc?ciif",
                          na = c("", "NA", "None"),
                          locale = locale(time_format = "y-m-d H:M:S")),
-                        .id = "annotator") %>% 
+                        .id = "annotator") %>%
   mutate(annotator = str_extract(annotator, "(\\w*)(?=(\\.csv))"))
 df %>%
-  select(annotator, text, label) %>% 
+  select(annotator, text, label) %>%
   head %>%
   gt
 ```
@@ -84,25 +84,25 @@ We also have multiple labels like `1,4` etc. Also removing empty labels `""` (cl
 ```{r annotator-agree}
 library(tidyr)
 df_dup <- df %>%
-  group_by(index) %>% 
-  mutate(label = str_squish(as.character(label))) %>% 
-  mutate(label = str_split(label, ",")) %>% 
-  unnest(c(label)) %>% 
-  ungroup() %>% 
-  mutate(label = str_squish(label)) %>% 
-  filter(label != "") %>% 
-  mutate(label = if_else(label == "999", "99", label)) %>% 
+  group_by(index) %>%
+  mutate(label = str_squish(as.character(label))) %>%
+  mutate(label = str_split(label, ",")) %>%
+  unnest(c(label)) %>%
+  ungroup() %>%
+  mutate(label = str_squish(label)) %>%
+  filter(label != "") %>%
+  mutate(label = if_else(label == "999", "99", label)) %>%
   mutate(label = as.factor(label))
 agreed_df <- df_dup %>%
-  group_by(index) %>% 
+  group_by(index) %>%
   summarise(agreement = 1 / n_distinct(label))
 ```
 
 The total of agreement is `r (agreed_df %>% summarize(mean(agreement))) * 100`%.
 
 ```{r overall-agree}
-agreed_df %>% 
-  summarize(mean(agreement)) %>% 
+agreed_df %>%
+  summarize(mean(agreement)) %>%
   gt
 ```
 
@@ -122,17 +122,91 @@ col_range <- function(x) {
   (rng[2] - rng[1])
 }
 
-df_dup %>% 
-  select(index, annotator, label) %>% 
-  group_by(annotator, label) %>% 
-  count() %>% 
-  pivot_wider(id_cols = label, names_from = annotator, values_from = n) %>% 
+df_dup %>%
+  select(index, annotator, label) %>%
+  group_by(annotator, label) %>%
+  count() %>%
+  pivot_wider(id_cols = label, names_from = annotator, values_from = n) %>%
   mutate(
     diff = max(elias:vini) - min(elias:vini),
     diff_perc = diff / max(elias:vini)
-    ) %>% 
-  ungroup() %>% 
+    ) %>%
+  ungroup() %>%
   gt
+```
+
+## Long format
+
+(annotator-id, item-id, label)
+
+```{r long-format}
+df_long <- df %>%
+  mutate(index =  rep(1L:1000, 3)) %>%
+  group_by(index) %>%
+  mutate(label = str_squish(as.character(label))) %>%
+  mutate(label = str_split(label, ",")) %>%
+  unnest(c(label)) %>%
+  ungroup() %>%
+  mutate(label = str_squish(label)) %>%
+  filter(label != "") %>%
+  mutate(label = if_else(label == "999", "99", label)) %>%
+  mutate(label = as.factor(label)) %>%
+  mutate(
+    annotator = case_when(
+      annotator == "elias" ~ 1L,
+      annotator == "paula" ~ 2L,
+      annotator == "vini" ~ 3L,
+    TRUE ~ NA_integer_),
+    label = case_when(
+      label == 0 ~ 1L,
+      label == 1 ~ 2L,
+      label == 2 ~ 3L,
+      label == 3 ~ 4L,
+      label == 4 ~ 5L,
+      label == 5 ~ 6L,
+      label == 6 ~ 7L,
+      label == 99 ~ 8L,
+      TRUE ~ NA_integer_
+    )) %>%
+  select(item_id = index, annotator_id = annotator, label_id = label,
+         text, user, place, user_place, country, coordinates)
+
+df_long %>%
+  write_csv(here::here("pre-labeling", "long_format.csv"))
+```
+
+New label formats:
+
+```{r new-labels}
+tribble(
+                        ~code, ~label,
+                        "1", "Unrelated tweet",
+            "2", "User currently has symptoms",
+          "3", "User had symptoms in the past",
+    "4", "Someone else currently has symptoms",
+  "5", "Someone else had symptoms in the past",
+                      "6", "Conspiracy theory",
+  "7", "Someone else has died (death related)",
+       "8", "Indonesian, portugal, spanish etc"
+  ) %>%
+  write_csv(here::here("pre-labeling", "meaning_labels.csv"))
+```
+
+## Bob's Confusion Matrix
+
+```{r bob-confmat}
+label_df <- df_long %>%
+      select(item_id, annotator_id, label_id) %>%
+      pivot_wider(id_cols = item_id, names_from = annotator_id, values_from = label_id, values_fn = first) %>%
+      arrange(item_id) %>%
+      drop_na()
+n_labels <- max(length(unique(label_df$`1`)), length(unique(label_df$`2`)), length(unique(label_df$`3`)))
+
+conf_mat <- matrix(0, n_labels, n_labels)
+
+### stuck in coding this
+
+label_df %>% write_csv(here::here("pre-labeling", "pre_confusion_matrix.csv"))
 ```
 
 ## Environment
