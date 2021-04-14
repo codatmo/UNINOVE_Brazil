@@ -4,4 +4,4 @@
 .Ruserdata
 .DS_Store
 .httr-oauth
-*.csv
+sample_1k*.csv
