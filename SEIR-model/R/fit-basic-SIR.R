@@ -1,5 +1,6 @@
 library(cmdstanr)
 library(dplyr)
+library(rstan)
 
 br <- readRDS(here::here("SEIR-model/", "data", "brazil_2021.rds"))
 
@@ -33,6 +34,7 @@ model <- cmdstan_model(here::here("SEIR-model", "stan", "basic-SIR.stan"))
 fit_sir <- model$sample(data = data_sir)
 
 # Summary Stats
+fit_sir$cmdstan_summary()
 fit_sir$summary()
 fit_sir$summary("R0")
 
@@ -42,3 +44,8 @@ fit_sir$save_output_files(here::here("SEIR-model", "results", "basic-SIR"))
 # If necessary you can load with
 files <- list.files(here::here("SEIR-model", "results", "basic-SIR"), full.names = TRUE)
 output <- read_cmdstan_csv(files)
+
+# Plotting Stuff
+r_stan_sir <- rstan::read_stan_csv(files)
+pars <- c("beta", "gamma", "R0", "recovery_time")
+stan_dens(r_stan_sir, pars = pars, separate_chains = TRUE)
