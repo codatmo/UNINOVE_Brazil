@@ -52,9 +52,20 @@ library(readr, warn.conflicts = FALSE)
 library(tidyr, warn.conflicts = FALSE)
 set.seed(123)
 sample_df <- df %>%
-    drop_na(text) %>%
-    sample_n(1e3)
+  drop_na(text) %>%
+  sample_n(1e3)
 sample_df %>% write_csv("sample_1k.csv")
+```
+
+More Sample Data:
+
+```{r sample_data2}
+set.seed(124)
+sample_df2 <- df %>% 
+  drop_na(text) %>% 
+  sample_n(1e3) %>% 
+  anti_join(sample_df)
+sample_df2 %>% write_csv("sample2_1k.csv")
 ```
 
 ## Session Information
