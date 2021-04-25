@@ -7,12 +7,12 @@ data {
 }
 
 parameters {
-  row_vector[M_feature_count] b_coefs;
+  vector[M_feature_count] b_coefs;
   real intercept; 
 }
 
 model {
   intercept ~ normal(0,2);
   b_coefs ~ normal(0,2);
-  y_categories ~ bernoulli_logit(intercept + b_coefs*x_features);
+  y_categories ~ bernoulli_logit(x_features * b_coefs + intercept);
 }
