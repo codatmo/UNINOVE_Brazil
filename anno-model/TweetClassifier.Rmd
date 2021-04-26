@@ -15,26 +15,66 @@ This document describes a Stan based classifier for COVID-19 symptom tweets. It 
 
 The broader goal of this code concerns aiding decision making in Brazil around COVID-19 interventions and planning. We wanted to bring social media like tweets into the modeling because it could add useful information about past and present conditions not contained in more traditional sources like testing, hospitalizations, vaccination rates and deaths. The classifier will hopefully become part of a broader mixed model incorporating all sources of information. 
 
-## Validation checklist items completed
+### Validation checklist items 
 
+* Model released on github: 
+* Problem description
 * Model description: Research goals, references, supplementary description as necessary.
-* Data description and explicit data munging description.
+* Data
+  + Data generating process
+  + Data munging and examination
+* Stan program
+* Running model
+  + Small data set to validate model execution (not done)
+  + Run on availble data
+  + Examine model output
+* Model 
+* Model validation
+  + Report posterior diagnostics
+  + Prior predictive check parameters/predictions
+  + Parameter recovery with simulated data
+  + Posterior predictive check
+  + Parameter interpretation (not done)
+  + Cross validation (not done)
+  + Simulation based calibration (SBC) (not done)
+* Compute environment
+
+# Problem description
 
 
-## Validation steps planned
-
-* Small data set to validate model execution
-* Divergent transitions report
-* Rhat check
-* Compare marginal posterior densities across chains
-* Posterior predictive check
-* Prior predictive check
-* Simulated data parameter recovery
-* SBC (Simulation Based Calibration)
 
 # Model description
 
 The model is a standard text classifier using logistic regression to classify tweets into being about COVID-19 or not in the Portuguese language. Predictors/features are words determined by white space with no stemming or other forms of normalization. 
+
+# Data
+
+## Data generating process
+
+Simple approaches to text classification have very strong tendencies towards over fitting as determined by posterior predictive checks. In the computational linguistics world this is reflected with the rule-of-thumb that one never evaluates on training data outside of sanity checks that the system is working and information is flowing correctly with the expected results to be near perfect due to over fitting. 
+
+This stands in remarkable contrast to other areas of statistical reasoning where no opportunity exists to evaluate on held out data of some form--the classic example being an observational study with no correlates for a randomized controlled trial. So, can we develop a model that performs equivalently on training data as held out data? 
+
+One obvious place where the over fitting occurs follows from unknown words in held out data that does not occur in training data. In a well designed classifier there can be back off strategies that take an unknown word and use character language models to get estimates for constituent characters with finally a global intercept term that uses the prevalence of the category alone to estimate the category. See Bob Carpenter's implementation of a naive Bayes classifier at [http://www.alias-i.com/lingpipe/docs/api/com/aliasi/classify/NaiveBayesClassifier.html](http://www.alias-i.com/lingpipe/docs/api/com/aliasi/classify/NaiveBayesClassifier.html). 
+
+With the goal being well calibrated posterior predictive checks compared to held out data, the straight forward area to explore involves modeling whether terms are unknown as well as category prediction. Essentially we over-fit because we always know the words, or at least that seems likely. 
+
+``` {r}
+# need dgp that mirrors train/test-on-held-out vs train/test-on-train difference
+
+# generate vocab
+V_vocab <- 1e03
+# number of sentences
+N_sents <- 1e04
+# generate categories (can be fixed)
+C_categories <- 2
+# generate 1/2/3 word sequences correlated to categories
+data <- data.frame(1:N_sents, row.names = c(sent_id))
+# generate tweets
+
+
+
+```
 
 ## Annotation
 
