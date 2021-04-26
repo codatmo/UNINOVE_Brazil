@@ -1,0 +1,65 @@
+---
+title: "Twitter Classifier"
+author: "Breck Baldwin"
+date: "4/26/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message=FALSE, comment=NA)
+```
+
+# Model overview
+
+This document describes a Stan based classifier for COVID-19 symptom tweets. It is part of the CoDatMo project at [https://codatmo.github.io/](https://codatmo.github.io/). The source for this document is at [https://github.com/codatmo/UNINOVE_Sao_Paulo/anno-model/](https://github.com/codatmo/UNINOVE_Sao_Paulo/anno-model) as `TweetClassifier.Rmd` and rendered as `TweetClassifier.html`. 
+
+The broader goal of this code concerns aiding decision making in Brazil around COVID-19 interventions and planning. We wanted to bring social media like tweets into the modeling because it could add useful information about past and present conditions not contained in more traditional sources like testing, hospitalizations, vaccination rates and deaths. The classifier will hopefully become part of a broader mixed model incorporating all sources of information. 
+
+## Validation checklist items completed
+
+* Model description: Research goals, references, supplementary description as necessary.
+* Data description and explicit data munging description.
+
+
+## Validation steps planned
+
+* Small data set to validate model execution
+* Divergent transitions report
+* Rhat check
+* Compare marginal posterior densities across chains
+* Posterior predictive check
+* Prior predictive check
+* Simulated data parameter recovery
+* SBC (Simulation Based Calibration)
+
+# Model description
+
+The model is a standard text classifier using logistic regression to classify tweets into being about COVID-19 or not in the Portuguese language. Predictors/features are words determined by white space with no stemming or other forms of normalization. 
+
+## Annotation
+
+Twitter data is provided by the University of Liverpool as a result of an undocumented query to the Twitter api. The general idea is that these are tweets that describe symptoms of COVID-19. The annotation standard is icluded below:
+
+``` {r}
+cat(paste(readLines("data/coding-standard.csv"), "\n", sep=""), sep="")
+```
+
+# Data description and explicit data munging description.
+
+There is considerable data processing to map to Stan friendly data structures which are all done in R. At a high level we have data with three annotators for the same data set and at this point we only use one annotators output.
+
+The data is assumed to be located at `../data/long_format.csv` relative to the location of the executing R script at [https://github.com/codatmo/UNINOVE_Sao_Paulo/tree/main/anno-model/R/classifier.R](https://github.com/codatmo/UNINOVE_Sao_Paulo/tree/main/anno-model/R/classifier.R). Note that the data is not included with the repository because of intellectual property restrictions placed by Twitter. 
+
+```{r echo=TRUE}
+
+cat(paste(readLines("R/classifier.R"), "\n", sep=""), sep="")
+```
+
+
+# Small data set to validate model execution
+# Divergent transitions report
+# Rhat check
+# Compare marginal posterior densities across chains
+# Posterior predictive check
+# Prior predictive check
+# Simulated data parameter recovery
