@@ -11,12 +11,14 @@ data {
 
 parameters {
   vector[M_feature_count] b_coefs;
+  real sigma_hyper_prior;
   real intercept; 
 }
 
 model {
   intercept ~ normal(0,2);
-  b_coefs ~ normal(0,2);
+  sigma_hyper_prior ~ exponential(2);
+  b_coefs ~ normal(0,sigma_hyper_prior);
   // y_categories ~ bernoulli_logit(x_features * b_coefs + intercept);
   target += bernoulli_logit_glm_lpmf(y_categories | x_features, intercept, b_coefs);
 }
@@ -28,10 +30,10 @@ generated quantities {
   real fp = 0;
   real tn = 0;
   real fn = 0;
-
+  vector[H_held_out] pos_prob = inv_logit(x_held_out * b_coefs + intercept);
   for (i in 1:H_held_out) {
+    
     real prob = inv_logit(x_held_out[i] * b_coefs + intercept);
-    print("prob=", prob);
     if (prob > .5) { 
       if (y_held_out[i] == 1) {
         tp += 1;

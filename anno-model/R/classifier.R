@@ -64,19 +64,31 @@ stan_data <- list(N_data_count = N_data_count - held_out + 1,
 
 model <- cmdstan_model("../stan/classifier.stan")
 
+
 fit <- model$sample(data = stan_data, seed = 22, chains = 4, 
                     iter_warmup = 1000, iter_sampling = 1000)
 
 # evaluating on training data, not a good idea
 print(fit$draws(c('precision', 'recall')))
 
-fit$save_object("held_out1.RDS")
+fit$save_object("held_out_2_multilevel.RDS")
 
-library(shinystan)
-library(rstan)
+fit <- readRDS("held_out_2_multilevel.RDS")
 
-stanfit <- rstan::read_stan_csv(fit$output_files())
-launch_shinystan(stanfit)
+df <- fit$draws(variables = c('b_coefs','intercept'), format = "df")
+
+intercept_array_draws <- fit$draws(variables = c('intercept'), format = "array")
+
+b_array_draws <- fit$draws(variables = c('b_coefs'), format = "array")
+
+# get val[i][4000] <- intercept[4000] + pred_matrix[i,] * b_coefs[4000] for held out
 
 
-# fit_mle <- model$optimize(data = stan_data, seed = 22)
+for (i in 1:held_out) {
+  for (j in 1:1000) {
+    for (k in 1:4) {
+        val <- intercept_array_draws[j,k,1]  + 
+          b_array_draws[j, k, 1:M_feature_count] * pred_matrix[i]
+    }
+  }
+}
