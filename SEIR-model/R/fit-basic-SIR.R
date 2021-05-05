@@ -2,7 +2,7 @@ library(cmdstanr)
 library(dplyr)
 library(rstan)
 
-br <- readRDS(here::here("SEIR-model/", "data", "brazil_2021.rds"))
+br <- readRDS(here::here("SEIR-model/", "data", "brazil_nation.rds"))
 
 # total count
 N <- br %>% pull(estimated_population_2019) %>% max

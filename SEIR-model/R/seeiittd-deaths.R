@@ -1,6 +1,7 @@
 library(cmdstanr)
 library(dplyr)
 library(rstan)
+library(lubridate)
 
 # Simulated Data from Liverpool's CoDatMo
 # src/scripts/generateSimulatedData.R
@@ -33,6 +34,55 @@ summary_model_sim <- fit_sim$summary()
 summary_model_sim %>%
   filter(rhat >= 1.01)
 
+# Real data
+br <- readRDS(here::here("SEIR-model/", "data", "brazil_nation.rds"))
+
+initial_time <- 0
+total_time <- br %>% nrow
+beta_pieces <- 7 # number of days to make beta_pieces (weekly)
+n_beta_pieces <- ceiling(total_time / beta_pieces)
+beta_left_t <- seq(0, total_time - 1, by = beta_pieces)
+beta_right_t <- c(beta_left_t[2:n_beta_pieces], total_time + 1)
+n_disease_states = 8 # seeiittd
+population <- br %>% pull(estimated_population_2019) %>% max
+
+#Deaths are reported weekly, reporting periods are every seven days
+deaths_starts <- seq(1, (total_time / 7 - 1) * 7, by = 7)
+deaths_stops <- seq(7, total_time, by = 7)
+deaths_length <- min(c(length(death_starts), length(death_stops)))
+deaths <- br %>%
+  group_by(week = cut(date, "week")) %>%
+  summarise(deaths = mean(new_deaths)) %>%
+  pull(deaths) %>%
+  ceiling %>%
+  as.integer %>% 
+  head(-1)
+
+# I have no idea what real data is...
+real_data_length <- length(beta_left_t) + length(beta_right_t) + 1
+real_data <- c(beta_left_t, beta_right_t, population)
+integer_data_length <- 5
+integer_data <- c(total_time, length(beta_left_t), length(beta_right_t), length(beta_left_t), n_disease_states)
+
+stan_data <- list(
+  initial_time = initial_time,
+  n_beta_pieces = n_beta_pieces,
+  beta_left_t = beta_left_t,
+  beta_right_t = beta_right_t,
+  T = total_time,
+  times = seq_len(total_time),
+  n_disease_states = 8,
+  population = population,
+  deaths_length = deaths_length,
+  deaths_starts = deaths_starts,
+  deaths_stops = deaths_stops,
+  deaths = deaths,
+  real_data_length = real_data_length,
+  real_data = real_data,
+  integer_data_length = integer_data_length,
+  integer_data = integer_data,
+  compute_likelihood = 1
+)
 
 
 fit <- model$sample(data = stan_data,
