@@ -49,7 +49,7 @@ population <- br %>% pull(estimated_population_2019) %>% max
 #Deaths are reported weekly, reporting periods are every seven days
 deaths_starts <- seq(1, (total_time / 7 - 1) * 7, by = 7)
 deaths_stops <- seq(7, total_time, by = 7)
-deaths_length <- min(c(length(death_starts), length(death_stops)))
+deaths_length <- min(c(length(deaths_starts), length(deaths_starts)))
 deaths <- br %>%
   group_by(week = cut(date, "week")) %>%
   summarise(deaths = mean(new_deaths)) %>%
