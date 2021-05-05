@@ -25,14 +25,14 @@ stan_data_sim$calls_111_start <- NULL
 stan_data_sim$calls_111 <- NULL
 
 model <- cmdstan_model(here::here("SEIR-model", "stan", "deaths.stan"))
-fit_sim <- model$sample(data = stan_data_sim,
-                        seed = 123,
-                        chains = 4)
-
-summary_model_sim <- fit_sim$summary()
-
-summary_model_sim %>%
-  filter(rhat >= 1.01)
+# fit_sim <- model$sample(data = stan_data_sim,
+#                         seed = 123,
+#                         chains = 4)
+# 
+# summary_model_sim <- fit_sim$summary()
+# 
+# summary_model_sim %>%
+#   filter(rhat >= 1.01)
 
 # Real data
 br <- readRDS(here::here("SEIR-model/", "data", "brazil_nation.rds"))
