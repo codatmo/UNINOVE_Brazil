@@ -1,6 +1,5 @@
 library(cmdstanr)
 library(dplyr)
-library(rstan)
 library(lubridate)
 library(LaplacesDemon)
 
@@ -101,8 +100,5 @@ fit <- model$sample(data = stan_data,
                         output_dir = here::here("SEIR-model", "results", "deaths"))
 
 # If necessary you can load with
-files <- list.files(here::here("SEIR-model", "results", "deaths"), full.names = TRUE)
-output <- read_cmdstan_csv(files)
-
-# Plotting Stuff
-r_stan_sir <- rstan::read_stan_csv(files)
+# files <- list.files(here::here("SEIR-model", "results", "deaths"), full.names = TRUE)
+# output <- read_cmdstan_csv(files)
