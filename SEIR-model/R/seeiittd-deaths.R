@@ -2,6 +2,7 @@ library(cmdstanr)
 library(dplyr)
 library(rstan)
 library(lubridate)
+library(LaplacesDemon)
 
 # Simulated Data from Liverpool's CoDatMo
 # src/scripts/generateSimulatedData.R
@@ -85,8 +86,16 @@ stan_data <- list(
 )
 
 
+
 fit <- model$sample(data = stan_data,
                         seed = 123,
+                        init = function() list(initial_state_raw = c(runif(1, min = 0.99999, max = 1.0), runif(1, min = 0.0, max = 1.0)),
+                                               beta_left = exp(runif(n_beta_pieces, min = -2, max = 0.5)),
+                                               beta_right = exp(runif(n_beta_pieces, min = -2, max = 0.5)),
+                                               dL = runif(1, min = 3.5, max = 4.0),
+                                               dI = runif(1, min = 2.2, max = 2.6),
+                                               dT = runif(1, min = 11.0, max = 13.0),
+                                               omega = invlogit(runif(1, min = -5, max = -3))),
                         chains = 4,
                         output_dir = here::here("SEIR-model", "results", "deaths"))
 
