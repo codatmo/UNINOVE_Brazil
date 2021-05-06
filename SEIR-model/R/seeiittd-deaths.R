@@ -97,6 +97,7 @@ fit <- model$sample(data = stan_data,
                                                dT = runif(1, min = 11.0, max = 13.0),
                                                omega = invlogit(runif(1, min = -5, max = -3))),
                         chains = 4,
+			parallel_chains = 4,
                         output_dir = here::here("SEIR-model", "results", "deaths"))
 
 # If necessary you can load with
