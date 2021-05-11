@@ -24,7 +24,7 @@ stan_data_sim$calls_111_length <- NULL
 stan_data_sim$calls_111_start <- NULL
 stan_data_sim$calls_111 <- NULL
 
-model <- cmdstan_model(here::here("SEIR-model", "stan", "deaths.stan"))
+model <- cmdstan_model(here::here("SEIR-model", "stan", "deaths_rk45.stan"))
 # fit_sim <- model$sample(data = stan_data_sim,
 #                         seed = 123,
 #                         chains = 4)
@@ -95,9 +95,9 @@ fit <- model$sample(data = stan_data,
                                                dI = runif(1, min = 2.2, max = 2.6),
                                                dT = runif(1, min = 11.0, max = 13.0),
                                                omega = invlogit(runif(1, min = -5, max = -3))),
-                        chains = 4,
-			parallel_chains = 4,
-                        output_dir = here::here("SEIR-model", "results", "deaths"))
+                    chains = 4,
+                    parallel_chains = 4,
+                    output_dir = here::here("SEIR-model", "results", "deaths"))
 
 # If necessary you can load with
 # files <- list.files(here::here("SEIR-model", "results", "deaths"), full.names = TRUE)
