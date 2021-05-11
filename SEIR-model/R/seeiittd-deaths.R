@@ -24,7 +24,12 @@ stan_data_sim$calls_111_length <- NULL
 stan_data_sim$calls_111_start <- NULL
 stan_data_sim$calls_111 <- NULL
 
-model <- cmdstan_model(here::here("SEIR-model", "stan", "deaths_rk45.stan"))
+# Trapeizodal Rule Model
+# model <- cmdstan_model(here::here("SEIR-model", "stan", "deaths.stan"))
+# RK45 Old Interface Model
+# model <- cmdstan_model(here::here("SEIR-model", "stan", "deaths_rk45.stan"))
+# RK45 New Interface Model
+model <- cmdstan_model(here::here("SEIR-model", "stan", "deaths_new_rk45.stan"))
 # fit_sim <- model$sample(data = stan_data_sim,
 #                         seed = 123,
 #                         chains = 4)
