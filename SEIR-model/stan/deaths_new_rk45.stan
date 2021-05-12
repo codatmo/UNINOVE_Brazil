@@ -2,8 +2,8 @@ functions {
   vector seeiittd(real time,
                   vector state,
                   vector params,
-                  vector real_data,
-                  vector integer_data) {
+                  real[] real_data,
+                  int[] integer_data) {
 
     // Unpack integer data values
     int T = integer_data[1];
@@ -11,8 +11,8 @@ functions {
     int n_disease_states = integer_data[3];
 
     // Unpack real data values
-    vector[n_beta_pieces] beta_left_t = real_data[1:n_beta_pieces];
-    vector[n_beta_pieces] beta_right_t = real_data[n_beta_pieces+1:2*n_beta_pieces];
+    vector[n_beta_pieces] beta_left_t = to_vector(real_data[1:n_beta_pieces]);
+    vector[n_beta_pieces] beta_right_t = to_vector(real_data[n_beta_pieces+1:2*n_beta_pieces]);
     real population = real_data[2*n_beta_pieces+1];
 
     // Unpack parameter values
@@ -66,7 +66,7 @@ functions {
     dT2_dt = kappaT1 - kappaT2;
     dD_dt = kappaT2;
 
-    return {dS_dt, dE1_dt, dE2_dt, dI1_dt, dI2_dt, dT1_dt, dT2_dt, dD_dt};
+    return [dS_dt, dE1_dt, dE2_dt, dI1_dt, dI2_dt, dT1_dt, dT2_dt, dD_dt]';
   }
 }
 data {
@@ -99,7 +99,7 @@ transformed data {
 }
 parameters {
   real<lower=0, upper=1> initial_state_raw[2];
-  real<lower=0> beta_left[n_beta_pieces];
+  vector<lower=0>[n_beta_pieces] beta_left;
   real<lower=0> beta_right[n_beta_pieces];
   real<lower=0> dL;
   real<lower=0> dI;
@@ -108,13 +108,13 @@ parameters {
   real<lower=0> reciprocal_phi_deaths;
 }
 transformed parameters {
-  real initial_state[n_disease_states];
-  real grad_beta[n_beta_pieces];
+  vector[n_disease_states] initial_state;
+  vector[n_beta_pieces] grad_beta;
   real nu;
   real gamma;
   real kappa;
   real phi_deaths;
-  real state_estimate[T,n_disease_states];
+  vector[n_disease_states] state_estimate[T];
   vector[T+1] S;
   vector[T+1] E1;
   vector[T+1] E2;
@@ -135,8 +135,8 @@ transformed parameters {
   initial_state[6] = 0.0;
   initial_state[7] = 0.0;
   initial_state[8] = 0.0;
-  grad_beta = to_array_1d((to_vector(beta_right) - to_vector(beta_left))./(to_vector(beta_right_t) -
-              to_vector(beta_left_t)));
+  grad_beta = (to_vector(beta_right) - to_vector(beta_left))./(to_vector(beta_right_t) -
+              to_vector(beta_left_t));
   nu = 2.0/dL;
   gamma = 2.0/dI;
   kappa = 2.0/dT;
