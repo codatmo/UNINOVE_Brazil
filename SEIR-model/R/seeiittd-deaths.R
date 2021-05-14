@@ -26,10 +26,16 @@ stan_data_sim$calls_111 <- NULL
 
 # Trapeizodal Rule Model
 # model <- cmdstan_model(here::here("SEIR-model", "stan", "deaths.stan"))
+
 # RK45 Old Interface Model
 # model <- cmdstan_model(here::here("SEIR-model", "stan", "deaths_rk45.stan"))
+
 # RK45 New Interface Model
-model <- cmdstan_model(here::here("SEIR-model", "stan", "deaths_new_rk45.stan"))
+# model <- cmdstan_model(here::here("SEIR-model", "stan", "deaths_new_rk45.stan"))
+
+# RK4 Custom Model(https://github.com/spinkney/helpful_stan_functions/blob/main/functions/ode/odeint_rk4.stan)
+model <- cmdstan_model(here::here("SEIR-model", "stan", "deaths_custom_rk4.stan"))
+
 # fit_sim <- model$sample(data = stan_data_sim,
 #                         seed = 123,
 #                         chains = 4)
@@ -86,10 +92,10 @@ stan_data <- list(
   real_data = real_data,
   integer_data_length = integer_data_length,
   integer_data = integer_data,
-  compute_likelihood = 1,
-  relative_tolerance = 1e-5,
-  absolute_tolerance = 1e-5,
-  max_num_steps = 1e3L
+  compute_likelihood = 1#,
+  #relative_tolerance = 1e-5,
+  #absolute_tolerance = 1e-5,
+  #max_num_steps = 1e3L
 )
 
 
