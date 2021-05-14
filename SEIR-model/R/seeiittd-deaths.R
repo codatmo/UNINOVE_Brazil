@@ -111,7 +111,7 @@ fit <- model$sample(data = stan_data,
                                                omega = invlogit(runif(1, min = -5, max = -3))),
                     chains = 4,
                     parallel_chains = 4,
-                    output_dir = here::here("SEIR-model", "results", "deaths_rk45"))
+                    output_dir = here::here("SEIR-model", "results", "deaths_rk4"))
 
 # If necessary you can load with
 # files <- list.files(here::here("SEIR-model", "results", "deaths"), full.names = TRUE)
