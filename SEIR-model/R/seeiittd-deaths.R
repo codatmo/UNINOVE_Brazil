@@ -86,13 +86,16 @@ stan_data <- list(
   real_data = real_data,
   integer_data_length = integer_data_length,
   integer_data = integer_data,
-  compute_likelihood = 1
+  compute_likelihood = 1,
+  relative_tolerance = 1e-5,
+  absolute_tolerance = 1e-5,
+  max_num_steps = 1e3L
 )
 
 
 
 fit <- model$sample(data = stan_data,
-                        seed = 123,
+                        seed = 321,
                         init = function() list(initial_state_raw = c(runif(1, min = 0.99999, max = 1.0), runif(1, min = 0.0, max = 1.0)),
                                                beta_left = exp(runif(n_beta_pieces, min = -2, max = 0.5)),
                                                beta_right = exp(runif(n_beta_pieces, min = -2, max = 0.5)),
@@ -102,7 +105,7 @@ fit <- model$sample(data = stan_data,
                                                omega = invlogit(runif(1, min = -5, max = -3))),
                     chains = 4,
                     parallel_chains = 4,
-                    output_dir = here::here("SEIR-model", "results", "deaths"))
+                    output_dir = here::here("SEIR-model", "results", "deaths_rk45"))
 
 # If necessary you can load with
 # files <- list.files(here::here("SEIR-model", "results", "deaths"), full.names = TRUE)

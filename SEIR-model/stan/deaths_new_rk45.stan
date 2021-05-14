@@ -87,6 +87,9 @@ data {
   int integer_data_length;
   int integer_data[integer_data_length];
   int<lower=0, upper=1> compute_likelihood;
+  real relative_tolerance;
+  real absolute_tolerance;
+  int max_num_steps;
 }
 transformed data {
   real mu_dL = 4.00;
@@ -151,7 +154,8 @@ transformed parameters {
     params[2*n_beta_pieces+3] = kappa;
     params[2*n_beta_pieces+4] = omega;
 
-    state_estimate = ode_rk45(seeiittd, initial_state, initial_time, times, params, real_data, integer_data);
+    // state_estimate = ode_rk45(seeiittd, initial_state, initial_time, times, params, real_data, integer_data);
+    state_estimate = ode_rk45_tol(seeiittd, initial_state, initial_time, times, relative_tolerance, absolute_tolerance, max_num_steps, params, real_data, integer_data);
   }
 
   S = append_row(initial_state[1], to_vector(state_estimate[, 1]));
