@@ -29,7 +29,7 @@ model <- cmdstan_model(here::here("SEIR-model", "stan", "deaths_trapezoidal.stan
 
 # fit_sim <- model$sample(data = stan_data_sim,
 #                         seed = 123,
-#                         chains = 4)
+#                         parallel_chains = 4)
 # 
 # summary_model_sim <- fit_sim$summary()
 # 
