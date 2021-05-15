@@ -13,8 +13,20 @@ files <- list.files(here::here("SEIR-model", "results", "deaths_rk4"), full.name
 stanfit <- read_stan_csv(files)
 deaths <- as_cmdstan_fit(files)
 results <- deaths$summary()
+
+# Predicted Deaths
 pred_deaths <- results %>% 
   filter(str_detect(variable, "pred_deaths"))
+
+r_t <- results %>% 
+  filter(str_detect(variable, "effective_reproduction_number"))
+
+r_t %>% 
+  summarise(mean_mean = mean(mean),
+            mean_median = mean(median),
+            median_mean = median(mean),
+            median_median = median(median))
+
 
 # Real data
 br <- readRDS(here::here("SEIR-model/", "data", "brazil_nation.rds"))
