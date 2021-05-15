@@ -6,9 +6,10 @@ library(LaplacesDemon)
 # Maybe you'll need to install the Adjoint ODE Solver Test Version of CmdStan
 #install_cmdstan(release_url = "https://github.com/rok-cesnovar/cmdstan/releases/download/adjoint_ODE_v2/cmdstan-ode-adjoint-v2.tar.gz", cores = 4)
 
-# RK45 New Interface Model
+# Adjoint New Interface Model
 # Taken from: https://discourse.mc-stan.org/t/codatmo-liverpool-uninove-models-slow-ode-implementation-and-trapezoidal-solver/22500/6
-model <- cmdstan_model(here::here("SEIR-model", "stan", "deaths_new_rk45-v3.stan"))
+#model <- cmdstan_model(here::here("SEIR-model", "stan", "deaths_adjoint-v3.stan"))
+model <- cmdstan_model(here::here("SEIR-model", "stan", "deaths_adjoint-v4.stan"))
 
 # Real data
 br <- readRDS(here::here("SEIR-model/", "data", "brazil_nation.rds"))
@@ -74,8 +75,8 @@ fit <- model$sample(data = stan_data,
                                            omega = invlogit(runif(1, min = -5, max = -3))),
                     chains = 4,
                     parallel_chains = 4,
-                    output_dir = here::here("SEIR-model", "results", "deaths_rk45"))
+                    output_dir = here::here("SEIR-model", "results", "deaths_adjoint"))
 
 # If necessary you can load with
-# files <- list.files(here::here("SEIR-model", "results", "deaths_rk45"), full.names = TRUE)
+# files <- list.files(here::here("SEIR-model", "results", "deaths_adjoint"), full.names = TRUE)
 # output <- read_cmdstan_csv(files)
