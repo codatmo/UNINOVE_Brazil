@@ -24,15 +24,6 @@ stan_data_sim$calls_111_length <- NULL
 stan_data_sim$calls_111_start <- NULL
 stan_data_sim$calls_111 <- NULL
 
-# Trapeizodal Rule Model
-# model <- cmdstan_model(here::here("SEIR-model", "stan", "deaths.stan"))
-
-# RK45 Old Interface Model
-# model <- cmdstan_model(here::here("SEIR-model", "stan", "deaths_rk45.stan"))
-
-# RK45 New Interface Model
-# model <- cmdstan_model(here::here("SEIR-model", "stan", "deaths_new_rk45.stan"))
-
 # RK4 Custom Model(https://github.com/spinkney/helpful_stan_functions/blob/main/functions/ode/odeint_rk4.stan)
 model <- cmdstan_model(here::here("SEIR-model", "stan", "deaths_custom_rk4.stan"))
 
@@ -112,5 +103,5 @@ fit <- model$sample(data = stan_data,
                     output_dir = here::here("SEIR-model", "results", "deaths_rk4"))
 
 # If necessary you can load with
-# files <- list.files(here::here("SEIR-model", "results", "deaths"), full.names = TRUE)
+# files <- list.files(here::here("SEIR-model", "results", "deaths_rk4"), full.names = TRUE)
 # output <- read_cmdstan_csv(files)

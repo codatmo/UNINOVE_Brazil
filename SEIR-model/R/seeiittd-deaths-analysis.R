@@ -6,8 +6,9 @@ library(tibble)
 library(ggplot2)
 
 # If necessary you can load with
-#files <- list.files(here::here("SEIR-model", "results", "deaths"), full.names = TRUE)
-files <- list.files(here::here("SEIR-model", "results", "deaths_rk4"), full.names = TRUE)
+#files <- list.files(here::here("SEIR-model", "results", "deaths_trapezoidal"), full.names = TRUE)
+#files <- list.files(here::here("SEIR-model", "results", "deaths_rk4"), full.names = TRUE)
+files <- list.files(here::here("SEIR-model", "results", "deaths_rk45"), full.names = TRUE)
 
 # Results
 stanfit <- read_stan_csv(files)

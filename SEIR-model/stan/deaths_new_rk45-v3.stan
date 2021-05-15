@@ -13,8 +13,7 @@ functions {
                   real[] beta_left_t,
                   real[] beta_right_t,
                   */
-                  real population,
-                  int T) {
+                  real population) {
 
     // Unpack integer data values
     /*
@@ -24,7 +23,7 @@ functions {
     */
 
     //int n_beta_pieces = num_elements(beta_left_t);
-
+    
 
     // Unpack real data values
     /*
@@ -32,7 +31,7 @@ functions {
     vector[n_beta_pieces] beta_right_t = to_vector(real_data[n_beta_pieces+1:2*n_beta_pieces]);
     real population = real_data[2*n_beta_pieces+1];
     */
-
+    
     // Unpack parameter values
     /*
     vector[n_beta_pieces] beta_left = params[1:n_beta_pieces];
@@ -128,7 +127,7 @@ transformed data {
   real all_times[T+1];
   vector[n_beta_pieces+1] beta_t;
   beta_t[1:n_beta_pieces] = to_vector(beta_left_t);
-  beta_t[n_beta_pieces] = beta_right_t[n_beta_pieces];
+  beta_t[n_beta_pieces+1] = beta_right_t[n_beta_pieces];
   all_times[1] = initial_time;
   all_times[2:(T+1)] = times;
 }
@@ -194,23 +193,69 @@ transformed parameters {
 
   {
     vector[n_disease_states] last_state = initial_state;
-    for(i in 1:T) {
-      state_estimate[i]
-          = ode_bdf_tol(seeiittd,
-                         last_state, all_times[i], all_times[(i+1):(i+1)],
-                         1E-6, 1E-4, 100000000,
-                         beta_left[i],
-                         grad_beta[i],
-                         nu,
-                         gamma,
-                         kappa,
-                         omega,
-                         beta_t[i],
-                         population,
-                         T)[1];
-      last_state = state_estimate[i];
+    int j = 1;
+    for(i in 1:n_beta_pieces) {
+      int k = 0;
+      if (times[j] == beta_t[i]) {
+        state_estimate[j] = last_state;
+        j += 1;
+      }
+      while(j+k <= T && times[j + k] <= beta_t[i+1]) {
+        k += 1;
+      }
+      /*
+      print("i = ", i);
+      print("k = ", k);
+      print("j = ", j);
+      print("beta_t[i] = ", beta_t[i]);
+      print("times = ", times[j:(j+k-1)]);
+      print("beta_t[i+1] = ", beta_t[i+1]);
+      */
+      {
+        /*
+        vector[n_disease_states] state_piece[k+1] = ode_bdf_tol(seeiittd,
+                          last_state, beta_t[i],
+                          append_array(times[j:(j+k-1)], to_array_1d(beta_t[i+1:i+1])),
+                          1E-6, 1E-6, 10000000,
+                          beta_left[i],
+                          grad_beta[i],
+                          nu,
+                          gamma,
+                          kappa,
+                          omega,
+                          beta_t[i],
+                          population);
+        */
+        /**/
+        vector[n_disease_states] state_piece[k+1]
+            = ode_adjoint_tol_ctl(seeiittd,
+                                  last_state, beta_t[i],
+                                  append_array(times[j:(j+k-1)], to_array_1d(beta_t[i+1:i+1])),
+                                  1E-6, rep_vector(1E-8, n_disease_states),
+                                  1E-6, rep_vector(1E-6, n_disease_states),
+                                  1E-6, 1E-6,
+                                  10000000,
+                                  150,
+                                  1,
+                                  2, 2,
+                                  beta_left[i],
+                                  grad_beta[i],
+                                  nu,
+                                  gamma,
+                                  kappa,
+                                  omega,
+                                  beta_t[i],
+                                  population);
+
+        /**/
+        for(l in 1:k)
+          state_estimate[j + l - 1] = state_piece[l];
+        last_state = state_piece[k+1];
+        j += k;
+      }
     }
   }
+  //print("state_estimate = ", state_estimate[T-1:T]);
 
 
   S = append_row(initial_state[1], to_vector(state_estimate[, 1]));
@@ -222,13 +267,12 @@ transformed parameters {
   T2 = append_row(initial_state[7], to_vector(state_estimate[, 7]));
   D = append_row(initial_state[8], to_vector(state_estimate[, 8]));
 
-  //daily_infections = S[:T] - S[2:] + machine_precision();
-  daily_infections = S[:T] - S[2:] + 1E-4;
-  daily_deaths = D[2:] - D[:T] + 1E-4; // I had problems with negativity
+  daily_infections = S[:T] - S[2:] + machine_precision();
+  daily_deaths = D[2:] - D[:T];
 
   {
     vector[T+1] I = I1 + I2;
-    effective_reproduction_number = (daily_infections ./ I[:T])*dI;
+    effective_reproduction_number= (daily_infections ./ I[:T])*dI;
   }
 }
 
@@ -251,9 +295,7 @@ model {
   }
 }
 generated quantities {
-  /*
   vector[T-1] growth_rate = (log(daily_infections[2:]) - log(daily_infections[:T-1]))*100;
-  */
 
   int pred_deaths[deaths_length];
 
@@ -261,5 +303,4 @@ generated quantities {
     pred_deaths[i] = neg_binomial_2_rng(sum(daily_deaths[deaths_starts[i]:deaths_stops[i]]),
                      phi_deaths);
   }
-
 }
