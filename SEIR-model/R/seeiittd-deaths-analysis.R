@@ -6,7 +6,8 @@ library(tibble)
 library(ggplot2)
 
 # If necessary you can load with
-files <- list.files(here::here("SEIR-model", "results", "deaths"), full.names = TRUE)
+#files <- list.files(here::here("SEIR-model", "results", "deaths"), full.names = TRUE)
+files <- list.files(here::here("SEIR-model", "results", "deaths_rk4"), full.names = TRUE)
 
 # Results
 stanfit <- read_stan_csv(files)
@@ -25,6 +26,18 @@ real_deaths <- br %>%
   as.integer %>% 
   head(-1) %>% 
   enframe(name = "day", value = "real_deaths")
+
+# MAE Real vs Predicted
+pred_deaths %>% 
+  bind_cols(real_deaths) %>% 
+  mutate(
+    MAE_median = median - real_deaths,
+    MAE_mean = mean - real_deaths) %>% 
+  summarise(
+    MAE_median = abs(mean(MAE_median)),
+    MAE_mean = abs(mean(MAE_mean)))
+
+# Figure Real vs Predicted
 pred_deaths %>% 
   bind_cols(real_deaths) %>%
   ggplot(aes(x = day)) +

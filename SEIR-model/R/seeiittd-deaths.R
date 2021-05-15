@@ -98,8 +98,6 @@ stan_data <- list(
   #max_num_steps = 1e3L
 )
 
-
-
 fit <- model$sample(data = stan_data,
                         seed = 321,
                         init = function() list(initial_state_raw = c(runif(1, min = 0.99999, max = 1.0), runif(1, min = 0.0, max = 1.0)),
