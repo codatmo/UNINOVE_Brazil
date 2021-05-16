@@ -7,8 +7,8 @@ library(ggplot2)
 
 # If necessary you can load with
 #files <- list.files(here::here("SEIR-model", "results", "deaths_trapezoidal"), full.names = TRUE)
-#files <- list.files(here::here("SEIR-model", "results", "deaths_rk4"), full.names = TRUE)
-files <- list.files(here::here("SEIR-model", "results", "deaths_rk45"), full.names = TRUE)
+files <- list.files(here::here("SEIR-model", "results", "deaths_rk4"), full.names = TRUE)
+#files <- list.files(here::here("SEIR-model", "results", "deaths_adjoint"), full.names = TRUE)
 
 # Results
 stanfit <- read_stan_csv(files)
@@ -19,6 +19,7 @@ results <- deaths$summary()
 pred_deaths <- results %>% 
   filter(str_detect(variable, "pred_deaths"))
 
+# R_t
 r_t <- results %>% 
   filter(str_detect(variable, "effective_reproduction_number"))
 
@@ -28,6 +29,10 @@ r_t %>%
             median_mean = median(mean),
             median_median = median(median))
 
+
+# Omega
+omega <- results %>% 
+  filter(str_detect(variable, "omega"))
 
 # Real data
 br <- readRDS(here::here("SEIR-model/", "data", "brazil_nation.rds"))
