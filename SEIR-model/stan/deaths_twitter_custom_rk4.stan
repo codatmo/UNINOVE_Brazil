@@ -142,7 +142,7 @@ transformed data {
   real sigma_dT = 0.71;
   int max_lag = 13;
   real h = times[1] - initial_time;
-  int num_steps = size(times) - 1;
+  int num_steps = T;
 }
 parameters {
   real<lower=0, upper=1> initial_state_raw[2];
@@ -161,7 +161,7 @@ transformed parameters {
   real gamma;
   real kappa;
   real phi_deaths;
-  vector[n_disease_states] state_estimate[T];
+  vector[n_disease_states] state_estimate[T+1];
   vector[T+1] S;
   vector[T+1] E1;
   vector[T+1] E2;
@@ -202,14 +202,14 @@ transformed parameters {
     state_estimate = odeint_rk4(initial_time, initial_state, h, num_steps, real_data, params, integer_data);
   }
 
-  S = append_row(initial_state[1], to_vector(state_estimate[, 1]));
-  E1 = append_row(initial_state[2], to_vector(state_estimate[, 2]));
-  E2 = append_row(initial_state[3], to_vector(state_estimate[, 3]));
-  I1 = append_row(initial_state[4], to_vector(state_estimate[, 4]));
-  I2 = append_row(initial_state[5], to_vector(state_estimate[, 5]));
-  T1 = append_row(initial_state[6], to_vector(state_estimate[, 6]));
-  T2 = append_row(initial_state[7], to_vector(state_estimate[, 7]));
-  D = append_row(initial_state[8], to_vector(state_estimate[, 8]));
+  S = to_vector(state_estimate[, 1]);
+  E1 = to_vector(state_estimate[, 2]);
+  E2 = to_vector(state_estimate[, 3]);
+  I1 = to_vector(state_estimate[, 4]);
+  I2 = to_vector(state_estimate[, 5]);
+  T1 = to_vector(state_estimate[, 6]);
+  T2 = to_vector(state_estimate[, 7]);
+  D = to_vector(state_estimate[, 8]);
 
   daily_infections = S[:T] - S[2:] + machine_precision();
   daily_deaths = D[2:] - D[:T]     + machine_precision();
