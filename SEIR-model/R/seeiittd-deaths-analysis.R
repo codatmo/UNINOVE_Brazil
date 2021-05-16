@@ -38,7 +38,7 @@ omega <- results %>%
 br <- readRDS(here::here("SEIR-model/", "data", "brazil_nation.rds"))
 real_deaths <- br %>%
   group_by(week = cut(date, "week")) %>%
-  summarise(deaths = mean(new_deaths)) %>%
+  summarise(deaths = sum(new_deaths)) %>%
   pull(deaths) %>%
   ceiling %>%
   as.integer %>% 
@@ -49,11 +49,11 @@ real_deaths <- br %>%
 pred_deaths %>% 
   bind_cols(real_deaths) %>% 
   mutate(
-    MAE_median = median - real_deaths,
-    MAE_mean = mean - real_deaths) %>% 
+    MAE_median = abs(median - real_deaths),
+    MAE_mean = abs(mean - real_deaths)) %>% 
   summarise(
-    MAE_median = abs(mean(MAE_median)),
-    MAE_mean = abs(mean(MAE_mean)))
+    MAE_median = mean(MAE_median),
+    MAE_mean = mean(MAE_mean))
 
 # Figure Real vs Predicted
 pred_deaths %>% 
