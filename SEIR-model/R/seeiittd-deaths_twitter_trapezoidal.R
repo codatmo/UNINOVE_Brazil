@@ -60,7 +60,7 @@ deaths_stops <- seq(7, total_time, by = 7)
 deaths_length <- min(c(length(deaths_starts), length(deaths_starts)))
 deaths <- br %>%
   group_by(week = cut(date, "week")) %>%
-  summarise(deaths = mean(new_deaths)) %>%
+  summarise(deaths = sum(new_deaths)) %>%
   pull(deaths) %>%
   ceiling %>%
   as.integer %>% 
