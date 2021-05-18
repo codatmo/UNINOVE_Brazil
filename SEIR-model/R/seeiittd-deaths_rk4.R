@@ -4,7 +4,7 @@ library(lubridate)
 library(LaplacesDemon)
 
 # RK4 Custom Model(https://github.com/spinkney/helpful_stan_functions/blob/main/functions/ode/odeint_rk4.stan)
-model <- cmdstan_model(here::here("SEIR-model", "stan", "deaths_custom_rk4.stan"))
+model <- cmdstan_model(here::here("SEIR-model", "stan", "deaths_rk4.stan"))
 
 # Real data
 br <- readRDS(here::here("SEIR-model/", "data", "brazil_nation.rds"))
