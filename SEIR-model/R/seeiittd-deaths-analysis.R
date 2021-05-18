@@ -1,14 +1,14 @@
 library(rstan)
 library(dplyr)
 library(cmdstanr)
-library(stringr)
 library(tibble)
 library(ggplot2)
 
 # If necessary you can load with
 #files <- list.files(here::here("SEIR-model", "results", "deaths_trapezoidal"), full.names = TRUE)
-files <- list.files(here::here("SEIR-model", "results", "deaths_rk4"), full.names = TRUE)
+#files <- list.files(here::here("SEIR-model", "results", "deaths_rk4"), full.names = TRUE)
 #files <- list.files(here::here("SEIR-model", "results", "deaths_adjoint"), full.names = TRUE)
+files <- list.files(here::here("SEIR-model", "results", "deaths_matrix_exp"), full.names = TRUE)
 
 # Results
 stanfit <- read_stan_csv(files)
