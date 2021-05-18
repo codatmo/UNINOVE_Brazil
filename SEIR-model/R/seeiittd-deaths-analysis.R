@@ -13,15 +13,12 @@ files <- list.files(here::here("SEIR-model", "results", "deaths_rk4"), full.name
 # Results
 stanfit <- read_stan_csv(files)
 deaths <- as_cmdstan_fit(files)
-results <- deaths$summary()
 
 # Predicted Deaths
-pred_deaths <- results %>% 
-  filter(str_detect(variable, "pred_deaths"))
+pred_deaths <- deaths$summary("pred_deaths")
 
 # R_t
-r_t <- results %>% 
-  filter(str_detect(variable, "effective_reproduction_number"))
+r_t <- deaths$summary("effective_reproduction_number")
 
 r_t %>% 
   summarise(mean_mean = mean(mean),
@@ -31,14 +28,13 @@ r_t %>%
 
 
 # Omega
-omega <- results %>% 
-  filter(str_detect(variable, "omega"))
+omega <- deaths$summary("omega")
 
 # Real data
 br <- readRDS(here::here("SEIR-model/", "data", "brazil_nation.rds"))
 real_deaths <- br %>%
   group_by(week = cut(date, "week")) %>%
-  summarise(deaths = mean(new_deaths)) %>%
+  summarise(deaths = sum(new_deaths)) %>%
   pull(deaths) %>%
   ceiling %>%
   as.integer %>% 
@@ -49,11 +45,11 @@ real_deaths <- br %>%
 pred_deaths %>% 
   bind_cols(real_deaths) %>% 
   mutate(
-    MAE_median = median - real_deaths,
-    MAE_mean = mean - real_deaths) %>% 
+    MAE_median = abs(median - real_deaths),
+    MAE_mean = abs(mean - real_deaths)) %>% 
   summarise(
-    MAE_median = abs(mean(MAE_median)),
-    MAE_mean = abs(mean(MAE_mean)))
+    MAE_median = mean(MAE_median),
+    MAE_mean = mean(MAE_mean))
 
 # Figure Real vs Predicted
 pred_deaths %>% 
