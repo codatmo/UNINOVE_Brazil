@@ -43,7 +43,7 @@ stan_data <- list(
   beta_right_t = beta_right_t,
   T = total_time,
   times = seq_len(total_time),
-  n_disease_states = 8,
+  n_disease_states = n_disease_states,
   population = population,
   deaths_length = deaths_length,
   deaths_starts = deaths_starts,

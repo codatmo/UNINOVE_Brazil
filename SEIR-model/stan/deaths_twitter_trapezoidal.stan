@@ -256,9 +256,6 @@ generated quantities {
     pred_deaths[i] = neg_binomial_2_rng(sum(daily_deaths[deaths_starts[i]:deaths_stops[i]]),
                      phi_deaths);
   }
-
-  for (i in 1:twitter_symptons_length) {
-    pred_twitter_symptons[i] = neg_binomial_2_rng(daily_twitter_symptons[twitter_symptons_start - 1 + i],
-                        phi_twitter_symptons);
-  }
+  pred_twitter_symptons = neg_binomial_2_rng(daily_twitter_symptons[twitter_symptons_start - 1 + i],
+                                             phi_twitter_symptons);
 }

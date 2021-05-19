@@ -127,6 +127,9 @@ data {
   int<lower=1> deaths_starts[deaths_length];
   int<lower=1> deaths_stops[deaths_length];
   int<lower=0> deaths[deaths_length];
+  int<lower=1> twitter_symptons_length;
+  int<lower=1> twitter_symptons_start;
+  int<lower=0> twitter_symptons[twitter_symptons_length];
   int real_data_length;
   real real_data[real_data_length];
   int integer_data_length;
@@ -218,6 +221,21 @@ transformed parameters {
     vector[T+1] I = I1 + I2;
     effective_reproduction_number= (daily_infections ./ I[:T])*dI;
   }
+  
+  twitter_symptons_lagged_daily_infections = lag_weights_twitter_symptons[1]*daily_infections;
+
+  for (i in 1:max_lag) {
+    twitter_symptons_lagged_daily_infections += lag_weights_twitter_symptons[i+1]*
+                                          append_row(rep_vector(0.0, i), daily_infections[:T-i]);
+  }
+
+  daily_twitter_symptons = rep_vector(0.0, T);
+
+  for (i in 1:n_rho_twitter_symptons_pieces) {
+    daily_twitter_symptons[rho_twitter_symptons_left_t[i]:rho_twitter_symptons_right_t[i]-1] =
+    twitter_symptons_lagged_daily_infections[rho_twitter_symptons_left_t[i]:rho_twitter_symptons_right_t[i]-1] *
+    rho_twitter_symptons[i];
+  }
 }
 
 model {
@@ -242,9 +260,12 @@ generated quantities {
   vector[T-1] growth_rate = (log(daily_infections[2:]) - log(daily_infections[:T-1]))*100;
 
   int pred_deaths[deaths_length];
+  int pred_twitter_symptons[twitter_symptons_length];
 
   for (i in 1:deaths_length) {
     pred_deaths[i] = neg_binomial_2_rng(sum(daily_deaths[deaths_starts[i]:deaths_stops[i]]),
                      phi_deaths);
   }
+  pred_twitter_symptons = neg_binomial_2_rng(daily_twitter_symptons[twitter_symptons_start - 1 + i],
+                                             phi_twitter_symptons);
 }
