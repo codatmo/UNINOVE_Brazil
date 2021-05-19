@@ -3,9 +3,9 @@ library(dplyr)
 
 # based on Funko_Unko's contribution: https://discourse.mc-stan.org/t/codatmo-liverpool-uninove-models-slow-ode-implementation-and-trapezoidal-solver/22500/45
 
-# Daily SEEIITTD ----------------------------------------------------------
+# SEEIITTD ----------------------------------------------------------------
 
-model <- cmdstan_model(here::here("SEIR-model", "stan", "deaths_matrix_exp_daily_seeiittd.stan"))
+model <- cmdstan_model(here::here("SEIR-model", "stan", "deaths_matrix_exp_seeiittd.stan"))
 
 # Real data
 br <- readRDS(here::here("SEIR-model/", "data", "brazil_nation.rds"))
@@ -18,16 +18,12 @@ stan_data <- list(
   no_days = no_days,
   population = population,
   new_deaths = new_deaths,
+  likelihood = 1,
   beta_regularization = 0.10,
-  likelihood = 1
+  model_periodicity = 1
 )
 
 fit <- model$sample(data = stan_data,
                     seed = 321,
                     parallel_chains = 4,
-                    output_dir = here::here("SEIR-model", "results", "deaths_matrix_exp", "daily_seeiittd"))
-
-
-# Weekly SEEIITTD ---------------------------------------------------------
-
-
+                    output_dir = here::here("SEIR-model", "results", "deaths_matrix_exp", "seeiittd"))

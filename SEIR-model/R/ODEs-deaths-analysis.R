@@ -6,6 +6,7 @@ library(ggplot2)
 
 # If necessary you can load with
 files <- list.files(here::here("SEIR-model", "results", "deaths_trapezoidal"), full.names = TRUE)
+#files <- list.files(here::here("SEIR-model", "results", "deaths_trapezoidal_seitd"), full.names = TRUE)
 #files <- list.files(here::here("SEIR-model", "results", "deaths_rk4"), full.names = TRUE)
 #files <- list.files(here::here("SEIR-model", "results", "deaths_adjoint"), full.names = TRUE)
 
