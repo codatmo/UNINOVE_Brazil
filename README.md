@@ -2,7 +2,7 @@
 
 COVID-19 Modeling work at [UNINOVE](https://www.uninove.br) for Brazil.
 
-Website at https://codatmo.github.io/UNINOVE_Sao_Paulo/.
+Website at https://codatmo.github.io/UNINOVE_Brazil/.
 
 ## Team
 
