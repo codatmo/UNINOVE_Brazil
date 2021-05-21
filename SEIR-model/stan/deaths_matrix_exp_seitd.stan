@@ -38,6 +38,14 @@ transformed parameters {
   vector[no_weeks] weekly_deaths;
   vector[no_days] beta;
   vector[no_days] effective_reproduction_number;
+
+  // States to be recovered
+  vector[no_days] state_S;
+  vector[no_days] state_E;
+  vector[no_days] state_I;
+  vector[no_days] state_T;
+  vector[no_days] state_D;
+
   if(likelihood){
     vector[4] state = [
         0,
@@ -69,6 +77,13 @@ transformed parameters {
       ]';
       beta[i] = daily_infections[i] * population / (S * state[2]); // S * I
       effective_reproduction_number[i] = daily_infections[i] / state[2] * dI; // I
+
+      // Populate States
+      state_S[i] = S;
+      state_E[i] = state[1];
+      state_I[i] = state[2];
+      state_T[i] = state[3];
+      state_D[i] = state[4];
     }
     for(week in 1:no_weeks){
       int start = 1+7*(week-1);
