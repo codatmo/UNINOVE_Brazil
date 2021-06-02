@@ -9,11 +9,13 @@ library(tidyr)
 seitd <- list.files(here::here("SEIR-model", "results", "deaths_matrix_exp", "seitd"), full.names = TRUE) %>%
     as_cmdstan_fit()
 
+dt_setid <- seitd$summary(variables = "dT")
 seitd <- seitd$summary(variables = c("state_S", "state_E", "state_I", "state_T", "state_D"))
 
 seeiittd <- list.files(here::here("SEIR-model", "results", "deaths_matrix_exp", "seeiittd"), full.names = TRUE) %>%
     as_cmdstan_fit()
 
+dt_seeiittd <- seeiittd$summary(variables = "dT")
 seeiittd <- seeiittd$summary(variables = c("state_S",
                                            "state_E1", "state_E2",
                                            "state_I1", "state_I2",
