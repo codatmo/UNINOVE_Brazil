@@ -71,6 +71,18 @@ sample_df6 <- df %>%
   anti_join(sample_df4) %>%
   anti_join(sample_df5)
 
+# Sixth round of 1k anotations (I need 3k for 3 labellers 1k each)
+set.seed(129)
+sample_df7 <- df %>%
+  drop_na(text) %>%
+  sample_n(3010) %>%
+  anti_join(sample_df) %>%
+  anti_join(sample_df2) %>%
+  anti_join(sample_df3) %>%
+  anti_join(sample_df4) %>%
+  anti_join(sample_df5) %>%
+  anti_join(sample_df6)
+
 file_delete(file$local_path)
 
-write_csv(sample_df6, "sample_1k.csv")
+write_csv(sample_df7, "sample_1k.csv")
