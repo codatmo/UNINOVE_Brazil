@@ -4,6 +4,7 @@ library(lubridate)
 library(readr)
 library(tibble)
 library(tidyr)
+library(rstan)
 
 
 seitd <- list.files(here::here("SEIR-model", "results", "deaths_matrix_exp", "seitd"), full.names = TRUE) %>%
@@ -53,3 +54,9 @@ real_deaths %>%
     left_join(seeiittd, "day",
     suffix = c("_seitd", "_seeiitd")) %>%
     write_csv(here::here("SEIR-model", "states_analysis", "seitd_vs_seeiittd.csv"))
+
+# Plot Stuff
+rstan_seitd <- rstan::read_stan_csv(list.files(here::here("SEIR-model", "results", "deaths_matrix_exp", "seitd"), full.names = TRUE))
+rstan_seeiittd <- rstan::read_stan_csv(list.files(here::here("SEIR-model", "results", "deaths_matrix_exp", "seeiittd"), full.names = TRUE))
+stan_dens(rstan_seitd, pars = "dT", separate_chains = FALSE)
+stan_dens(rstan_seeiittd, pars = "dT", separate_chains = FALSE)
