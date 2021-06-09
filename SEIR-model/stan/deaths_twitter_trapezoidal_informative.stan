@@ -104,11 +104,13 @@ data {
   int<lower=1> deaths_starts[deaths_length];
   int<lower=1> deaths_stops[deaths_length];
   int<lower=0> deaths[deaths_length];
+  int<lower=0> tweets[T];
   int real_data_length;
   real real_data[real_data_length];
   int integer_data_length;
   int integer_data[integer_data_length];
   int<lower=0, upper=1> compute_likelihood;
+  int<lower=0, upper=1> compute_twitter;
 }
 transformed data {
   real mu_dL = 4.00;
@@ -118,6 +120,7 @@ transformed data {
   real mu_dT = 16.00;
   real sigma_dT = 0.71;
   int max_lag = 13;
+
 }
 parameters {
   real<lower=0, upper=1> initial_state_raw[2];
@@ -128,7 +131,10 @@ parameters {
   real<lower=0> dT;
   real<lower=0, upper=1> omega;
   real<lower=0.001> reciprocal_phi_deaths;
+  real<lower=0.001> lambda_twitter;
+  real<lower=0> sigma_twitter_noise;
 }
+
 transformed parameters {
   real initial_state[n_disease_states];
   real grad_beta[n_beta_pieces];
@@ -190,10 +196,9 @@ transformed parameters {
 
   {
     vector[T+1] I = I1 + I2;
-    effective_reproduction_number= (daily_infections ./ I[:T])*dI;
+    effective_reproduction_number = (daily_infections ./ I[:T])*dI;
   }
 }
-
 model {
   initial_state_raw[1] ~ beta(5.0, 0.5);
   initial_state_raw[2] ~ beta(1.1, 1.1);
@@ -204,6 +209,8 @@ model {
   dT ~ normal(mu_dT, sigma_dT);
   omega ~ beta(100, 9803);
   reciprocal_phi_deaths ~ exponential(5);
+  lambda_twitter ~ normal(0, 1);
+  sigma_twitter_noise ~ normal(0, 20);
 
   if (compute_likelihood == 1) {
     for (i in 1:deaths_length) {
@@ -211,14 +218,23 @@ model {
                 sum(daily_deaths[deaths_starts[i]:deaths_stops[i]]), phi_deaths);
     }
   }
+  if (compute_twitter == 1) {
+     for (i in 1:T) {
+      target += normal_lpdf(tweets[i] | daily_infections[i] * lambda_twitter, sigma_twitter_noise);
+    }
+  }
 }
 generated quantities {
   vector[T-1] growth_rate = (log(daily_infections[2:]) - log(daily_infections[:T-1]))*100;
 
   int pred_deaths[deaths_length];
+  real pred_infected[T];
 
   for (i in 1:deaths_length) {
     pred_deaths[i] = neg_binomial_2_rng(sum(daily_deaths[deaths_starts[i]:deaths_stops[i]]),
                      phi_deaths);
+  }
+  for (i in 1:T) {
+     pred_infected[i] = normal_rng(daily_infections[i] * lambda_twitter, sigma_twitter_noise);
   }
 }
