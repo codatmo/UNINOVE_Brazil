@@ -1,5 +1,5 @@
 functions {
-  real[] seeiittd(real time,
+  real[] seitd(real time,
                   real[] state,
                   real[] params,
                   real[] real_data,
@@ -65,15 +65,15 @@ functions {
     real state_estimate[size(times),size(initial_state)];
 
     h = times[1] - initial_time;
-    dstate_dt_initial_time = to_vector(seeiittd(initial_time, initial_state, params, real_data, integer_data));
+    dstate_dt_initial_time = to_vector(seitd(initial_time, initial_state, params, real_data, integer_data));
     k = h*dstate_dt_initial_time;
-    state_estimate[1,] = to_array_1d(to_vector(initial_state) + h*(dstate_dt_initial_time + to_vector(seeiittd(times[1], to_array_1d(to_vector(initial_state)+k), params, real_data, integer_data)))/2);
+    state_estimate[1,] = to_array_1d(to_vector(initial_state) + h*(dstate_dt_initial_time + to_vector(seitd(times[1], to_array_1d(to_vector(initial_state)+k), params, real_data, integer_data)))/2);
 
     for (tidx in 1:size(times)-1) {
       h = (times[tidx+1] - times[tidx]);
-      dstate_dt_tidx = to_vector(seeiittd(times[tidx], state_estimate[tidx], params, real_data, integer_data));
+      dstate_dt_tidx = to_vector(seitd(times[tidx], state_estimate[tidx], params, real_data, integer_data));
       k = h*dstate_dt_tidx;
-      state_estimate[tidx+1,] = to_array_1d(to_vector(state_estimate[tidx,]) + h*(dstate_dt_tidx + to_vector(seeiittd(times[tidx+1], to_array_1d(to_vector(state_estimate[tidx,])+k), params, real_data, integer_data)))/2);
+      state_estimate[tidx+1,] = to_array_1d(to_vector(state_estimate[tidx,]) + h*(dstate_dt_tidx + to_vector(seitd(times[tidx+1], to_array_1d(to_vector(state_estimate[tidx,])+k), params, real_data, integer_data)))/2);
     }
 
     return state_estimate;
