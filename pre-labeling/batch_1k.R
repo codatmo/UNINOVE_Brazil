@@ -83,6 +83,18 @@ sample_df7 <- df %>%
   anti_join(sample_df5) %>%
   anti_join(sample_df6)
 
+set.seed(130)
+sample_df8 <- df %>%
+  drop_na(text) %>%
+  sample_n(10046) %>%
+  anti_join(sample_df) %>%
+  anti_join(sample_df2) %>%
+  anti_join(sample_df3) %>%
+  anti_join(sample_df4) %>%
+  anti_join(sample_df5) %>%
+  anti_join(sample_df6) %>%
+  anti_join(sample_df7)
+
 file_delete(file$local_path)
 
-write_csv(sample_df7, "sample_1k.csv")
+write_csv(sample_df8, "sample_10k.csv")
