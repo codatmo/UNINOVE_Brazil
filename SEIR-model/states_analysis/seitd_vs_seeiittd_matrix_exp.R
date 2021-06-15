@@ -30,7 +30,7 @@ seitd <- seitd %>%
             select(state, day, median) %>%
             pivot_wider(names_from = state,
                         values_from = median) %>%
-            mutate(day = seq(ymd('2020-02-25'),ymd('2021-05-04'), by = '1 day'))
+            mutate(day = seq(ymd("2020-02-25"),ymd("2021-05-04"), by = "1 day"))
 
 seeiittd <- seeiittd %>%
     extract(variable, c("state", "day"),
@@ -39,7 +39,7 @@ seeiittd <- seeiittd %>%
             select(state, day, median) %>%
             pivot_wider(names_from = state,
                         values_from = median) %>%
-            mutate(day = seq(ymd('2020-02-25'),ymd('2021-05-04'), by = '1 day'))
+            mutate(day = seq(ymd("2020-02-25"), ymd("2021-05-04"), by = "1 day"))
 
 # Real Deaths
 br <- readRDS(here::here("SEIR-model/", "data", "brazil_nation.rds"))
@@ -47,7 +47,7 @@ real_deaths <- br %>%
     pull(new_deaths) %>%
     cumsum %>%
     enframe(name = "day", value = "real_deaths") %>%
-    mutate(day = seq(ymd('2020-02-25'),ymd('2021-05-04'), by = '1 day'))
+    mutate(day = seq(ymd("2020-02-25"), ymd("2021-05-04"), by = "1 day"))
 
 real_deaths %>%
     left_join(seitd, "day") %>%
@@ -56,7 +56,15 @@ real_deaths %>%
     write_csv(here::here("SEIR-model", "states_analysis", "seitd_vs_seeiittd.csv"))
 
 # Plot Stuff
-rstan_seitd <- rstan::read_stan_csv(list.files(here::here("SEIR-model", "results", "deaths_matrix_exp", "seitd"), full.names = TRUE))
-rstan_seeiittd <- rstan::read_stan_csv(list.files(here::here("SEIR-model", "results", "deaths_matrix_exp", "seeiittd"), full.names = TRUE))
+rstan_seitd <- rstan::read_stan_csv(list.files(here::here("SEIR-model",
+                                                          "results",
+                                                          "deaths_matrix_exp",
+                                                          "seitd"),
+                                               full.names = TRUE))
+rstan_seeiittd <- rstan::read_stan_csv(list.files(here::here("SEIR-model",
+                                                             "results",
+                                                             "deaths_matrix_exp",
+                                                             "seeiittd"),
+                                                  full.names = TRUE))
 stan_dens(rstan_seitd, pars = "dT", separate_chains = FALSE)
 stan_dens(rstan_seeiittd, pars = "dT", separate_chains = FALSE)

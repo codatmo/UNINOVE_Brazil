@@ -7,7 +7,7 @@ library(LaplacesDemon)
 model <- cmdstan_model(here::here("SEIR-model", "stan", "deaths_trapezoidal_seitd.stan"))
 
 # Real data
-br <- readRDS(here::here("SEIR-model/", "data", "brazil_nation.rds"))
+br <- readRDS(here::here("SEIR-model", "data", "brazil_nation_2020.rds"))
 
 initial_time <- 0
 total_time <- br %>% nrow
@@ -27,7 +27,7 @@ deaths <- br %>%
   summarise(deaths = sum(new_deaths)) %>%
   pull(deaths) %>%
   ceiling %>%
-  as.integer %>% 
+  as.integer %>%
   head(-1)
 
 # I have no idea what real data is...
@@ -70,7 +70,7 @@ fit <- model$sample(data = stan_data,
                                                omega = invlogit(runif(1, min = -5, max = -3))),
                     chains = 4,
                     parallel_chains = 4,
-                    output_dir = here::here("SEIR-model", "results", "deaths_trapezoidal_seitd"))
+                    output_dir = here::here("SEIR-model", "results", "deaths_trapezoidal", "seitd"))
 
 # If necessary you can load with
 # files <- list.files(here::here("SEIR-model", "results", "deaths_trapezoidal"), full.names = TRUE)
