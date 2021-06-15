@@ -216,9 +216,14 @@ generated quantities {
   vector[T-1] growth_rate = (log(daily_infections[2:]) - log(daily_infections[:T-1]))*100;
 
   int pred_deaths[deaths_length];
-
   for (i in 1:deaths_length) {
     pred_deaths[i] = neg_binomial_2_rng(sum(daily_deaths[deaths_starts[i]:deaths_stops[i]]),
                      phi_deaths);
+  }
+
+  vector[deaths_length] log_lik;
+  for (i in 1:deaths_length) {
+    log_lik[i] = neg_binomial_2_lpmf(deaths[i] |
+                 sum(daily_deaths[deaths_starts[i]:deaths_stops[i]]), phi_deaths);
   }
 }
