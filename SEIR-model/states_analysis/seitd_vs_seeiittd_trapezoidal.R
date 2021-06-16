@@ -5,6 +5,7 @@ library(readr)
 library(tibble)
 library(tidyr)
 library(rstan)
+library(loo)
 
 seitd <- list.files(here::here("SEIR-model", "results", "deaths_trapezoidal", "seitd"), full.names = TRUE) %>%
     as_cmdstan_fit()
@@ -99,3 +100,19 @@ stan_dens(rstan_seeiittd,
           pars = "dT",
           separate_chains = FALSE) +
           ggtitle("SEEIITTD")
+
+# LOO-CV
+# Extract pointwise log-likelihood
+# using merge_chains=FALSE returns an array, which is easier to
+# use with relative_eff()
+log_lik_seitd <- extract_log_lik(rstan_seitd, merge_chains = FALSE)
+r_eff_seitd <- relative_eff(exp(log_lik_seitd), cores = 2)
+
+log_lik_seeiittd <- extract_log_lik(rstan_seeiittd, merge_chains = FALSE)
+r_eff_seeiittd <- relative_eff(exp(log_lik_seeiittd), cores = 2)
+
+loo_seitd <- loo(log_lik_seitd, r_eff = r_eff_seitd, cores = 2)
+loo_seeiittd <- loo(log_lik_seeiittd, r_eff = r_eff_seeiittd, cores = 2)
+
+# Compare Models
+comp <- loo_compare(loo_seitd, loo_seeiittd)
