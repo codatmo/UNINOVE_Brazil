@@ -16,4 +16,4 @@ Website at https://codatmo.github.io/UNINOVE_Brazil/.
   * [Paula Fraga](https://github.com/Paula-Fraga)
   * [Camila Brichta](https://github.com/camibrichta)
   * [Leandro dos Santos](https://github.com/leandrors91)
-  * [Junior](https://github.com/juniorghostinthewires)
+  * [Junior De Sousa Silva](https://github.com/juniorghostinthewires)
