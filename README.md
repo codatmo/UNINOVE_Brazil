@@ -8,7 +8,7 @@ Website at https://codatmo.github.io/UNINOVE_Brazil/.
 
 * Senior Researcher: [Breck Baldwin](https://github.com/breckbaldwin)
 * Lead Researcher: [Jose Storopoli](https://github.com/storopoli)
-* Associate Researcher: Alessandra Pellini
+* Associate Researcher:  [Alessandra Pellini](https://github.com/acgpellini)
 * Assistant Researcher: [Andre Santos](https://github.com/andrelmfsantos)
 * Undergraduate Senior Assistant: [João Vinícius Vieira Nóia](https://github.com/vinivieiran)
 * Undergraduate Assistants:
